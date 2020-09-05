@@ -27,10 +27,15 @@ if __name__ == '__main__':
 def index():
   if 'username' in session:
     return render_template('index.html', username=escape(session['username']))
-  return render_template('login-form.html')
+  return render_template('login-form.html') # The form will POST with the value username
 
 @app.route('/login', methods=['POST'])
 def login():
-  if request.method == 'POST':
+  if request.method == 'POST' and request.form['username']:
     session['username'] = request.form['username']
+  return redirect(url_for('index'))
+
+@app.route('/logout')
+def logout():
+  session.pop('username', None)
   return redirect(url_for('index'))
