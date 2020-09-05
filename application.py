@@ -1,13 +1,36 @@
-from flask import Flask, render_template
-import requests
+from flask import Flask, redirect, request, render_template, session, url_for
+from flask_restful import Resource, Api
+from flask_jsonpify import jsonify
+from markupsafe import escape
+from json import dumps
+from sqlalchemy import create_engine
 
+db_connect = create_engine('sqlite:///messages.db')
 app = Flask(__name__)
-app.debug = True
+app.secret_key = b'insertsecretkeyhere'
+api = Api(app)
+
+class Messages(Resource):
+  def get(self):
+    conn = db_connect.connect()
+    query = conn.execute("SELECT * FROM messages")
+    return { 'messages': [query.cursor.fetchall()] }
+  def post(self):
+    print("POSTED!")
+
+api.add_resource(Messages, '/messages')
+
+if __name__ == '__main__':
+    app.run(port='5002')
 
 @app.route('/')
 def index():
-  response = requests.get('https://randomuser.me/api/', headers = {
-      'Accept': 'application/json'
-    })
-  print(response.json())
-  return render_template('index.html')
+  if 'username' in session:
+    return render_template('index.html', username=escape(session['username']))
+  return render_template('login-form.html')
+
+@app.route('/login', methods=['POST'])
+def login():
+  if request.method == 'POST':
+    session['username'] = request.form['username']
+  return redirect(url_for('index'))
