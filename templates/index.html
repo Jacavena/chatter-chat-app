@@ -1,16 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>CHATTER</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style type="text/css">
+    .messages {
+      border: 1px solid black;
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>Chatter</h1>
-    <h2>Logged in as {{ username }}</h2>
-    <a href="/logout">Logout</a>
-  </header>
-  <input class="message-input" type="text" />
-  <button class="send-button">Submit</button>
-  <script src="{{ url_for('static', filename = 'main.js') }}"></script>
+  <h1></h1>
+  <div class="messages">
+    {% for message in messages %}
+      <div class="message">
+        {{ message.body }}
+      </div>
+    {% endfor %}
+  </div>
+  <form action="/message" method="POST">
+    <label for="name">Name</label>
+    <input id="name" type="text" name="name" value="{{ session['username'] }}">
+    <textarea name="body"></textarea>
+    <button type="submit">Send</button>
+  </form>
 </body>
 </html>
